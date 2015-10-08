@@ -109,103 +109,141 @@ static void usage(void) {
     );
 };
 
-int main(int argc, char *argv[])
-{
- int opt=0;
- int options_index=0;
- char *tmp=NULL;
-
- if(argc==1)
- {
-	  usage();
-    return 2;
- } 
-
- while((opt=getopt_long(argc,argv,"912Vfrt:p:c:?h",long_options,&options_index))!=EOF )
- {
-  switch(opt)
-  {
-   case  0 : break;
-   case 'f': force=1;break;
-   case 'r': force_reload=1;break; 
-   case '9': http10=0;break;
-   case '1': http10=1;break;
-   case '2': http10=2;break;
-   case 'V': printf(PROGRAM_VERSION"\n");exit(0);
-   case 't': benchtime=atoi(optarg);break;	     
-   case 'p': 
-	     /* proxy server parsing server:port */
-	     tmp=strrchr(optarg,':');
-	     proxyhost=optarg;
-	     if(tmp==NULL)
-	     {
-		     break;
-	     }
-	     if(tmp==optarg)
-	     {
-		     fprintf(stderr,"Error in option --proxy %s: Missing hostname.\n",optarg);
-		     return 2;
-	     }
-	     if(tmp==optarg+strlen(optarg)-1)
-	     {
-		     fprintf(stderr,"Error in option --proxy %s Port number is missing.\n",optarg);
-		     return 2;
-	     }
-	     *tmp='\0';
-	     proxyport=atoi(tmp+1);break;
-   case ':':
-   case 'h':
-   case '?': usage();return 2;break;
-   case 'c': clients=atoi(optarg);break;
-  }
- }
+int main(int argc, char *argv[]) {
+    int  opt           = 0;
+    int  options_index = 0;
+    char *tmp          = NULL;
  
- if(optind==argc) {
-                      fprintf(stderr,"webbench: Missing URL!\n");
-		      usage();
-		      return 2;
-                    }
-
- if(clients==0) clients=1;
- if(benchtime==0) benchtime=60;
- /* Copyright */
- fprintf(stderr,"Webbench - Simple Web Benchmark "PROGRAM_VERSION"\n"
-	 "Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.\n"
-	 );
-
- build_request(argv[optind]); /* 最后一个非选项的参数，被视为URL */
- /* print bench info */
- printf("\nBenchmarking: ");
-
- switch(method)
- {
-	 case METHOD_GET:
-	 default:
-		 printf("GET");break;
-	 case METHOD_OPTIONS:
-		 printf("OPTIONS");break;
-	 case METHOD_HEAD:
-		 printf("HEAD");break;
-	 case METHOD_TRACE:
-		 printf("TRACE");break;
- }
- printf(" %s",argv[optind]);
- switch(http10)
- {
-	 case 0: printf(" (using HTTP/0.9)");break;
-	 case 2: printf(" (using HTTP/1.1)");break;
- }
- printf("\n");
- if(clients==1) printf("1 client");
- else
-   printf("%d clients",clients);
-
- printf(", running %d sec", benchtime);
- if(force) printf(", early socket close");
- if(proxyhost!=NULL) printf(", via proxy server %s:%d",proxyhost,proxyport);
- if(force_reload) printf(", forcing reload");
- printf(".\n");
- return bench();
+ 
+    if (argc == 1) {
+        usage();
+        return 2;
+    } 
+ 
+ 
+    /* 参数解释，参见 man getopt_long */
+    while ((opt = getopt_long(argc, argv, "912Vfrt:p:c:?h", long_options, &options_index)) != EOF) {
+        switch(opt) {
+            case  0 :
+                break;
+            case 'f':
+                force = 1;
+                break;
+            case 'r': 
+                force_reload = 1; 
+                break; 
+            case '9': 
+                http10 = 0;
+                break;
+            case '1':
+                http10 = 1;
+                break;
+            case '2':
+                http10 = 2;
+                break;
+            case 'V':
+                printf(PROGRAM_VERSION"\n");
+                exit(0);
+            case 't':
+                benchtime = atoi(optarg);
+                break;         
+            case 'p': 
+                /* proxy server parsing server:port */
+                tmp       = strrchr(optarg, ':');
+                proxyhost = optarg;
+                if (tmp == NULL) {
+                    break;
+                }
+                if (tmp == optarg) {
+                    fprintf(stderr,"Error in option --proxy %s: Missing hostname.\n",optarg);
+                    return 2;
+                }
+                if (tmp == optarg + strlen(optarg) - 1) {
+                    fprintf(stderr,"Error in option --proxy %s Port number is missing.\n",optarg);
+                    return 2;
+                }
+                *tmp='\0';
+                proxyport = atoi(tmp + 1);
+                break;
+            case ':':
+            case 'h':
+            case '?':
+                usage();
+                return 2;
+                break;
+            case 'c':
+                clients = atoi(optarg);
+                break;
+        }
+    }
+  
+    if (optind == argc) {
+        fprintf(stderr, "webbench: Missing URL!\n");
+        usage();
+        return 2;
+    }
+ 
+    if (clients == 0) {
+        clients = 1;
+    }
+ 
+    if (benchtime == 0) {
+        benchtime = 60;
+    }
+ 
+    /* Copyright */
+    fprintf(stderr,
+        "Webbench - Simple Web Benchmark "PROGRAM_VERSION"\n"
+        "Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.\n"
+    );
+ 
+    build_request(argv[optind]); /* 最后一个非选项的参数，被视为URL */
+ 
+    /* print bench info */
+    printf("\nBenchmarking: ");
+    switch(method) {
+        case METHOD_GET:
+        default:
+            printf("GET");
+            break;
+        case METHOD_OPTIONS:
+            printf("OPTIONS");
+            break;
+        case METHOD_HEAD:
+            printf("HEAD");
+            break;
+        case METHOD_TRACE:
+            printf("TRACE");
+            break;
+    }
+    printf(" %s",argv[optind]);
+    switch(http10) {
+        case 0: 
+            printf(" (using HTTP/0.9)");
+            break;
+        case 2: 
+            printf(" (using HTTP/1.1)");
+            break;
+    }
+    printf("\n");
+    if (clients == 1) {
+        printf("1 client");
+    } else {
+        printf("%d clients", clients);
+    }
+    printf(", running %d sec", benchtime);
+    if (force) {
+        printf(", early socket close");
+    }
+    if (proxyhost != NULL) {
+        printf(", via proxy server %s:%d", proxyhost, proxyport);
+    }
+    if (force_reload) {
+        printf(", forcing reload");
+    }
+    printf(".\n");
+ 
+    return bench();
 }
 
 void build_request (const char *url) {
