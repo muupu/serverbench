@@ -431,58 +431,79 @@ static int bench(void) {
     return i;
 }
 
-void benchcore(const char *host,const int port,const char *req)
-{
- int rlen;
- char buf[1500];
- int s,i;
- struct sigaction sa;
-
- /* setup alarm signal handler */
- sa.sa_handler=alarm_handler;
- sa.sa_flags=0;
- if(sigaction(SIGALRM,&sa,NULL))
-    exit(3);
- alarm(benchtime);
-
- rlen=strlen(req);
- nexttry:while(1)
- {
-    if(timerexpired)
-    {
-       if(failed>0)
-       {
-          /* fprintf(stderr,"Correcting failed by signal\n"); */
-          failed--;
-       }
-       return;
+void benchcore(const char *host, const int port, const char *req) {
+    int    rlen;
+    char   buf[1500];
+    int    s, i;
+    struct sigaction sa;
+    
+    /* 这个是关键，当程序执行到指定的秒数之后，发送 SIGALRM 信号 */
+    sa.sa_handler = alarm_handler;
+    sa.sa_flags = 0;
+    if (sigaction(SIGALRM, &sa, NULL)) {
+        exit(3);
     }
-    s=Socket(host,port);                          
-    if(s<0) { failed++;continue;} 
-    if(rlen!=write(s,req,rlen)) {failed++;close(s);continue;}
-    if(http10==0) 
-	    if(shutdown(s,1)) { failed++;close(s);continue;}
-    if(force==0) 
-    {
+    alarm(benchtime);
+    
+    rlen = strlen(req);
+    /* 无限执行请求，直到接收到 SIGALRM 信号将 timerexpired 设置为 1 时 */
+    nexttry:
+    while (1) {
+        if (timerexpired) {
+            if (failed > 0) {
+                /* fprintf(stderr,"Correcting failed by signal\n"); */
+                failed--;
+            }
+            return;
+        }
+        /* 连接远程服务器 */
+        s = Socket(host, port);
+        if (s < 0) {
+            failed++;
+            continue;
+        }
+        /* 发送请求 */
+        if (rlen != write(s, req, rlen)) {
+            failed++;
+            close(s);
+            continue;
+        }
+        if (http10 == 0) {
+            /* 如果是 http/0.9 则关闭 socket 的写操作 */
+            if(shutdown(s, 1)) {
+                failed++;
+                close(s);
+                continue;
+            }
+        }
+        /* 如果等待响应数据返回，则读取响应数据，计算传输的字节数 */
+        if (force == 0) {
             /* read all available data from socket */
-	    while(1)
-	    {
-              if(timerexpired) break; 
-	      i=read(s,buf,1500);
-              /* fprintf(stderr,"%d\n",i); */
-	      if(i<0) 
-              { 
-                 failed++;
-                 close(s);
-                 goto nexttry;
-              }
-	       else
-		       if(i==0) break;
-		       else
-			       bytes+=i;
-	    }
+            while(1) {
+                if(timerexpired) {
+                    break; 
+                }
+                i = read(s, buf, 1500);
+                /* fprintf(stderr,"%d\n",i); */
+                if (i < 0) { 
+                    failed++;
+                    close(s);
+                    goto nexttry;
+                } else {
+                    if(i==0) {
+                        break;
+                    } else {
+                        bytes += i;
+                    }
+                }
+            }
+        }
+        /* 关闭连接 */
+        if (close(s)) {
+            failed++;
+            continue;
+        }
+        /* 成功完成一次请求，并计数，继续下一次相同的请求，直到超时为止 */
+        speed++;
     }
-    if(close(s)) {failed++;continue;}
-    speed++;
- }
 }
