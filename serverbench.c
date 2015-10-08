@@ -41,13 +41,22 @@ int force_reload=0; /* 是否发送 Pragma: no-cache */
 int proxyport=80; /* 代理端口 */
 char *proxyhost=NULL; /* 代理服务器名称 */
 
+/*
+ * 执行时间，当子进程执行时间到过这个秒数之后，
+ * 发送 SIGALRM 信号，将 timerexpired 设置为 1，
+ * 让所有子进程退出 
+ */
 int benchtime=30;
-/* internal */
-int mypipe[2];
-char host[MAXHOSTNAMELEN];
-#define REQUEST_SIZE 2048
-char request[REQUEST_SIZE];
 
+/* 管道，子进程完成任务后，向写端写入数据，主进程从读端读取数据 */
+int mypipe[2];
+
+char host[MAXHOSTNAMELEN]; /* 主机名（64字节） */
+
+#define REQUEST_SIZE 2048
+char request[REQUEST_SIZE]; /* 请求字符串（HTTP头） */
+
+/* 命令行的选项配置表，细节部分查看man文档：man getopt_long */
 static const struct option long_options[]=
 {
  {"force",no_argument,&force,1},
@@ -68,8 +77,11 @@ static const struct option long_options[]=
 };
 
 /* prototypes */
+/* 子进程执行请求任务的函数 */
 static void benchcore(const char* host,const int port, const char *request);
+/* 执行压测的主要入口函数 */
 static int bench(void);
+/* 生成 HTTP 头 */
 static void build_request(const char *url);
 
 static void alarm_handler(int signal)
