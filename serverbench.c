@@ -15,23 +15,32 @@
  *    - 变量会在程序外被改变
  */
 volatile int timerexpired=0;
+
+/* 成功请求数 */
 int speed=0;
+/* 失败请求数 */
 int failed=0;
+/* 失败请求数 */
 int bytes=0;
-/* globals */
+/* 支持的 HTTP 协议版本*/
 int http10=1; /* 0 - http/0.9, 1 - http/1.0, 2 - http/1.1 */
+
 /* Allow: GET, HEAD, OPTIONS, TRACE */
 #define METHOD_GET 0
 #define METHOD_HEAD 1
 #define METHOD_OPTIONS 2
 #define METHOD_TRACE 3
 #define PROGRAM_VERSION "1.5"
+
+/* 默认为GET方法 */
 int method=METHOD_GET;
-int clients=1;
-int force=0;
-int force_reload=0;
-int proxyport=80;
-char *proxyhost=NULL;
+
+int clients=1; /* 默认启动一个客户端（子进程） */
+int force=0; /* 是否等待响应数据返回，0 －等待，1 － 不等待 */
+int force_reload=0; /* 是否发送 Pragma: no-cache */
+int proxyport=80; /* 代理端口 */
+char *proxyhost=NULL; /* 代理服务器名称 */
+
 int benchtime=30;
 /* internal */
 int mypipe[2];
