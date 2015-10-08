@@ -17,13 +17,13 @@
 volatile int timerexpired=0;
 
 /* 成功请求数 */
-int speed=0;
+int speed  = 0;
 /* 失败请求数 */
-int failed=0;
-/* 失败请求数 */
-int bytes=0;
+int failed = 0;
+/* 读取字节总数 */
+int bytes  = 0;
 /* 支持的 HTTP 协议版本*/
-int http10=1; /* 0 - http/0.9, 1 - http/1.0, 2 - http/1.1 */
+int http10 = 1; /* 0 - http/0.9, 1 - http/1.0, 2 - http/1.1 */
 
 /* Allow: GET, HEAD, OPTIONS, TRACE */
 #define METHOD_GET 0
@@ -33,20 +33,20 @@ int http10=1; /* 0 - http/0.9, 1 - http/1.0, 2 - http/1.1 */
 #define PROGRAM_VERSION "1.5"
 
 /* 默认为GET方法 */
-int method=METHOD_GET;
+int method = METHOD_GET;
 
-int clients=1; /* 默认启动一个客户端（子进程） */
-int force=0; /* 是否等待响应数据返回，0 －等待，1 － 不等待 */
-int force_reload=0; /* 是否发送 Pragma: no-cache */
-int proxyport=80; /* 代理端口 */
-char *proxyhost=NULL; /* 代理服务器名称 */
+int clients      = 1; /* 默认启动一个客户端（子进程） */
+int force        = 0; /* 是否等待响应数据返回，0 －等待，1 － 不等待 */
+int force_reload = 0; /* 是否发送 Pragma: no-cache */
+int proxyport    = 80; /* 代理端口 */
+char *proxyhost  = NULL; /* 代理服务器名称 */
 
 /*
  * 执行时间，当子进程执行时间到过这个秒数之后，
  * 发送 SIGALRM 信号，将 timerexpired 设置为 1，
  * 让所有子进程退出 
  */
-int benchtime=30;
+int benchtime = 30;
 
 /* 管道，子进程完成任务后，向写端写入数据，主进程从读端读取数据 */
 int mypipe[2];
@@ -57,23 +57,22 @@ char host[MAXHOSTNAMELEN]; /* 主机名（64字节） */
 char request[REQUEST_SIZE]; /* 请求字符串（HTTP头） */
 
 /* 命令行的选项配置表，细节部分查看man文档：man getopt_long */
-static const struct option long_options[]=
-{
- {"force",no_argument,&force,1},
- {"reload",no_argument,&force_reload,1},
- {"time",required_argument,NULL,'t'},
- {"help",no_argument,NULL,'?'},
- {"http09",no_argument,NULL,'9'},
- {"http10",no_argument,NULL,'1'},
- {"http11",no_argument,NULL,'2'},
- {"get",no_argument,&method,METHOD_GET},
- {"head",no_argument,&method,METHOD_HEAD},
- {"options",no_argument,&method,METHOD_OPTIONS},
- {"trace",no_argument,&method,METHOD_TRACE},
- {"version",no_argument,NULL,'V'},
- {"proxy",required_argument,NULL,'p'},
- {"clients",required_argument,NULL,'c'},
- {NULL,0,NULL,0}
+static const struct option long_options[] = {
+    {"force",   no_argument,       &force,        1},
+    {"reload",  no_argument,       &force_reload, 1},
+    {"time",    required_argument, NULL,          't'},
+    {"help",    no_argument,       NULL,          '?'},
+    {"http09",  no_argument,       NULL,          '9'},
+    {"http10",  no_argument,       NULL,          '1'},
+    {"http11",  no_argument,       NULL,          '2'},
+    {"get",     no_argument,       &method,       METHOD_GET},
+    {"head",    no_argument,       &method,       METHOD_HEAD},
+    {"options", no_argument,       &method,       METHOD_OPTIONS},
+    {"trace",   no_argument,       &method,       METHOD_TRACE},
+    {"version", no_argument,       NULL,          'V'},
+    {"proxy",   required_argument, NULL,          'p'},
+    {"clients", required_argument, NULL,          'c'},
+    {NULL,      0,                 NULL,          0}
 };
 
 /* prototypes */
@@ -84,31 +83,32 @@ static int bench(void);
 /* 生成 HTTP 头 */
 static void build_request(const char *url);
 
+/* 将 timerexpired 设置为1，让所有子进程退出 */
 static void alarm_handler(int signal)
 {
    timerexpired=1;
 }	
 
-static void usage(void)
-{
-   fprintf(stderr,
-	"webbench [option]... URL\n"
-	"  -f|--force               Don't wait for reply from server.\n"
-	"  -r|--reload              Send reload request - Pragma: no-cache.\n"
-	"  -t|--time <sec>          Run benchmark for <sec> seconds. Default 30.\n"
-	"  -p|--proxy <server:port> Use proxy server for request.\n"
-	"  -c|--clients <n>         Run <n> HTTP clients at once. Default one.\n"
-	"  -9|--http09              Use HTTP/0.9 style requests.\n"
-	"  -1|--http10              Use HTTP/1.0 protocol.\n"
-	"  -2|--http11              Use HTTP/1.1 protocol.\n"
-	"  --get                    Use GET request method.\n"
-	"  --head                   Use HEAD request method.\n"
-	"  --options                Use OPTIONS request method.\n"
-	"  --trace                  Use TRACE request method.\n"
-	"  -?|-h|--help             This information.\n"
-	"  -V|--version             Display program version.\n"
-	);
+static void usage(void) {
+    fprintf(stderr,
+        "webbench [option]... URL\n"
+        "  -f|--force               Don't wait for reply from server.\n"
+        "  -r|--reload              Send reload request - Pragma: no-cache.\n"
+        "  -t|--time <sec>          Run benchmark for <sec> seconds. Default 30.\n"
+        "  -p|--proxy <server:port> Use proxy server for request.\n"
+        "  -c|--clients <n>         Run <n> HTTP clients at once. Default one.\n"
+        "  -9|--http09              Use HTTP/0.9 style requests.\n"
+        "  -1|--http10              Use HTTP/1.0 protocol.\n"
+        "  -2|--http11              Use HTTP/1.1 protocol.\n"
+        "  --get                    Use GET request method.\n"
+        "  --head                   Use HEAD request method.\n"
+        "  --options                Use OPTIONS request method.\n"
+        "  --trace                  Use TRACE request method.\n"
+        "  -?|-h|--help             This information.\n"
+        "  -V|--version             Display program version.\n"
+    );
 };
+
 int main(int argc, char *argv[])
 {
  int opt=0;
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
  if(argc==1)
  {
 	  usage();
-          return 2;
+    return 2;
  } 
 
  while((opt=getopt_long(argc,argv,"912Vfrt:p:c:?h",long_options,&options_index))!=EOF )
@@ -172,9 +172,11 @@ int main(int argc, char *argv[])
  fprintf(stderr,"Webbench - Simple Web Benchmark "PROGRAM_VERSION"\n"
 	 "Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.\n"
 	 );
- build_request(argv[optind]);
+
+ build_request(argv[optind]); /* 最后一个非选项的参数，被视为URL */
  /* print bench info */
  printf("\nBenchmarking: ");
+
  switch(method)
  {
 	 case METHOD_GET:
