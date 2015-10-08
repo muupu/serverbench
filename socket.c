@@ -15,28 +15,28 @@ int Socket(const char *addr, int port)
 {
     int sock;
     unsigned long inaddr;
-    struct sockaddr_in ad;
+    struct sockaddr_in sockin;
     struct hostent *hp;
     
-    memset(&ad, 0, sizeof(ad));
-    ad.sin_family = AF_INET;
+    memset(&sockin, 0, sizeof(sockin));
+    sockin.sin_family = AF_INET;
 
     inaddr = inet_addr(addr);
     if (inaddr != INADDR_NONE)
-        memcpy(&ad.sin_addr, &inaddr, sizeof(inaddr));
+        memcpy(&sockin.sin_addr, &inaddr, sizeof(inaddr));
     else
     {
         hp = gethostbyname(addr);
         if (hp == NULL)
             return -1;
-        memcpy(&ad.sin_addr, hp->h_addr, hp->h_length);
+        memcpy(&sockin.sin_addr, hp->h_addr, hp->h_length);
     }
-    ad.sin_port = htons(port);
+    sockin.sin_port = htons(port);
     
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0)
         return sock;
-    if (connect(sock, (struct sockaddr *)&ad, sizeof(ad)) < 0)
+    if (connect(sock, (struct sockaddr *)&sockin, sizeof(sockin)) < 0)
         return -1;
     return sock;
 }
