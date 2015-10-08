@@ -208,203 +208,227 @@ int main(int argc, char *argv[])
  return bench();
 }
 
-void build_request(const char *url)
-{
-  char tmp[10];
-  int i;
-
-  bzero(host,MAXHOSTNAMELEN);
-  bzero(request,REQUEST_SIZE);
-
-  if(force_reload && proxyhost!=NULL && http10<1) http10=1;
-  if(method==METHOD_HEAD && http10<1) http10=1;
-  if(method==METHOD_OPTIONS && http10<2) http10=2;
-  if(method==METHOD_TRACE && http10<2) http10=2;
-
-  switch(method)
-  {
-	  default:
-	  case METHOD_GET: strcpy(request,"GET");break;
-	  case METHOD_HEAD: strcpy(request,"HEAD");break;
-	  case METHOD_OPTIONS: strcpy(request,"OPTIONS");break;
-	  case METHOD_TRACE: strcpy(request,"TRACE");break;
-  }
-		  
-  strcat(request," ");
-
-  if(NULL==strstr(url,"://"))
-  {
-	  fprintf(stderr, "\n%s: is not a valid URL.\n",url);
-	  exit(2);
-  }
-  if(strlen(url)>1500)
-  {
-         fprintf(stderr,"URL is too long.\n");
-	 exit(2);
-  }
-  if(proxyhost==NULL)
-	   if (0!=strncasecmp("http://",url,7)) 
-	   { fprintf(stderr,"\nOnly HTTP protocol is directly supported, set --proxy for others.\n");
-             exit(2);
-           }
-  /* protocol/host delimiter */
-  i=strstr(url,"://")-url+3;
-  /* printf("%d\n",i); */
-
-  if(strchr(url+i,'/')==NULL) {
-                                fprintf(stderr,"\nInvalid URL syntax - hostname don't ends with '/'.\n");
-                                exit(2);
-                              }
-  if(proxyhost==NULL)
-  {
-   /* get port from hostname */
-   if(index(url+i,':')!=NULL &&
-      index(url+i,':')<index(url+i,'/'))
-   {
-	   strncpy(host,url+i,strchr(url+i,':')-url-i);
-	   bzero(tmp,10);
-	   strncpy(tmp,index(url+i,':')+1,strchr(url+i,'/')-index(url+i,':')-1);
-	   /* printf("tmp=%s\n",tmp); */
-	   proxyport=atoi(tmp);
-	   if(proxyport==0) proxyport=80;
-   } else
-   {
-     strncpy(host,url+i,strcspn(url+i,"/"));
-   }
-   // printf("Host=%s\n",host);
-   strcat(request+strlen(request),url+i+strcspn(url+i,"/"));
-  } else
-  {
-   // printf("ProxyHost=%s\nProxyPort=%d\n",proxyhost,proxyport);
-   strcat(request,url);
-  }
-  if(http10==1)
-	  strcat(request," HTTP/1.0");
-  else if (http10==2)
-	  strcat(request," HTTP/1.1");
-  strcat(request,"\r\n");
-  if(http10>0)
-	  strcat(request,"User-Agent: WebBench "PROGRAM_VERSION"\r\n");
-  if(proxyhost==NULL && http10>0)
-  {
-	  strcat(request,"Host: ");
-	  strcat(request,host);
-	  strcat(request,"\r\n");
-  }
-  if(force_reload && proxyhost!=NULL)
-  {
-	  strcat(request,"Pragma: no-cache\r\n");
-  }
-  if(http10>1)
-	  strcat(request,"Connection: close\r\n");
-  /* add empty line at end */
-  if(http10>0) strcat(request,"\r\n"); 
-  // printf("Req=%s\n",request);
+void build_request (const char *url) {
+    char tmp[10];
+    int i;
+   
+    bzero(host, MAXHOSTNAMELEN);
+    bzero(request, REQUEST_SIZE);
+   
+    /* 协议适配
+     * */
+    if (force_reload && proxyhost != NULL && http10 < 1) {
+        http10=1;
+    }
+    if (method == METHOD_HEAD && http10 < 1) {
+        http10=1;
+    }
+    if (method == METHOD_OPTIONS && http10 < 2) {
+        http10=2;
+    }
+    if (method == METHOD_TRACE && http10 < 2) {
+        http10=2;
+    }
+   
+    switch (method) {
+        default:
+        case METHOD_GET:
+            strcpy(request, "GET");
+            break;
+        case METHOD_HEAD: 
+            strcpy(request, "HEAD");
+            break;
+        case METHOD_OPTIONS:
+            strcpy(request, "OPTIONS");
+            break;
+        case METHOD_TRACE:
+            strcpy(request, "TRACE");
+            break;
+    }
+             
+    strcat(request, " ");
+   
+    if (NULL == strstr(url, "://")) {
+        fprintf(stderr, "\n%s: is not a valid URL.\n",url);
+        exit(2);
+    }
+    if (strlen(url) > 1500) {
+        fprintf(stderr,"URL is too long.\n");
+        exit(2);
+    }
+    if (proxyhost == NULL) {
+        if (0 != strncasecmp("http://", url, 7)) {
+            fprintf(stderr,"\nOnly HTTP protocol is directly supported, set --proxy for others.\n");
+            exit(2);
+        }
+    }
+   
+    /* protocol/host delimiter */
+    i = strstr(url, "://") - url + 3;
+    /* printf("%d\n",i); */
+   
+    if (strchr(url + i, '/') == NULL) {
+        fprintf(stderr,"\nInvalid URL syntax - hostname don't ends with '/'.\n");
+        exit(2);
+    }
+ 
+ 
+    if (proxyhost == NULL) {
+        /* get port from hostname */
+        if (index(url + i, ':') != NULL && index(url + i, ':') < index(url + i, '/')) {
+            strncpy(host, url + i, strchr(url + i, ':') - url - i);
+            bzero(tmp, 10);
+            strncpy(tmp, index(url + i, ':') + 1, strchr(url + i, '/') - index(url + i, ':') - 1);
+            /* printf("tmp=%s\n",tmp); */
+            proxyport = atoi(tmp);
+            if (proxyport == 0) {
+                proxyport=80;
+            }
+        } else {
+            strncpy(host, url + i, strcspn(url + i, "/"));
+        }
+        // printf("Host=%s\n",host);
+        strcat(request + strlen(request), url + i + strcspn(url + i, "/"));
+    } else {
+        // printf("ProxyHost=%s\nProxyPort=%d\n",proxyhost,proxyport);
+        strcat(request, url);
+    }
+ 
+ 
+    if (http10 == 1) {
+        strcat(request, " HTTP/1.0");
+    } else if (http10 == 2) {
+        strcat(request, " HTTP/1.1");
+    }
+    strcat(request,"\r\n");
+ 
+ 
+    if (http10 > 0) {
+        strcat(request, "User-Agent: WebBench "PROGRAM_VERSION"\r\n");
+    }
+    if (proxyhost == NULL && http10 > 0) {
+        strcat(request, "Host: ");
+        strcat(request, host);
+        strcat(request, "\r\n");
+    }
+    if (force_reload && proxyhost != NULL) {
+        strcat(request, "Pragma: no-cache\r\n");
+    }
+    if (http10 > 1) {
+        strcat(request, "Connection: close\r\n");
+    }
+    /* add empty line at end */
+    if (http10 > 0) {
+        strcat(request, "\r\n"); 
+    }
+    // printf("Req=%s\n",request);
 }
 
 /* vraci system rc error kod */
-static int bench(void)
-{
-  int i,j,k;	
-  pid_t pid=0;
-  FILE *f;
-
-  /* check avaibility of target server */
-  i=Socket(proxyhost==NULL?host:proxyhost,proxyport);
-  if(i<0) { 
-	   fprintf(stderr,"\nConnect to server failed. Aborting benchmark.\n");
-           return 1;
-         }
-  close(i);
-  /* create pipe */
-  if(pipe(mypipe))
-  {
-	  perror("pipe failed.");
-	  return 3;
-  }
-
-  /* not needed, since we have alarm() in childrens */
-  /* wait 4 next system clock tick */
-  /*
-  cas=time(NULL);
-  while(time(NULL)==cas)
-        sched_yield();
-  */
-
-  /* fork childs */
-  for(i=0;i<clients;i++)
-  {
-	   pid=fork();
-	   if(pid <= (pid_t) 0)
-	   {
-		   /* child process or error*/
-	           sleep(1); /* make childs faster */
-		   break;
-	   }
-  }
-
-  if( pid< (pid_t) 0)
-  {
-          fprintf(stderr,"problems forking worker no. %d\n",i);
-	  perror("fork failed.");
-	  return 3;
-  }
-
-  if(pid== (pid_t) 0)
-  {
-    /* I am a child */
-    if(proxyhost==NULL)
-      benchcore(host,proxyport,request);
-         else
-      benchcore(proxyhost,proxyport,request);
-
-         /* write results to pipe */
-	 f=fdopen(mypipe[1],"w");
-	 if(f==NULL)
-	 {
-		 perror("open pipe for writing failed.");
-		 return 3;
-	 }
-	 /* fprintf(stderr,"Child - %d %d\n",speed,failed); */
-	 fprintf(f,"%d %d %d\n",speed,failed,bytes);
-	 fclose(f);
-	 return 0;
-  } else
-  {
-	  f=fdopen(mypipe[0],"r");
-	  if(f==NULL) 
-	  {
-		  perror("open pipe for reading failed.");
-		  return 3;
-	  }
-	  setvbuf(f,NULL,_IONBF,0);
-	  speed=0;
-          failed=0;
-          bytes=0;
-
-	  while(1)
-	  {
-		  pid=fscanf(f,"%d %d %d",&i,&j,&k);
-		  if(pid<2)
-                  {
-                       fprintf(stderr,"Some of our childrens died.\n");
-                       break;
-                  }
-		  speed+=i;
-		  failed+=j;
-		  bytes+=k;
-		  /* fprintf(stderr,"*Knock* %d %d read=%d\n",speed,failed,pid); */
-		  if(--clients==0) break;
-	  }
-	  fclose(f);
-
-  printf("\nSpeed=%d pages/min, %d bytes/sec.\nRequests: %d susceed, %d failed.\n",
-		  (int)((speed+failed)/(benchtime/60.0f)),
-		  (int)(bytes/(float)benchtime),
-		  speed,
-		  failed);
-  }
-  return i;
+static int bench(void) {
+    int   i, j, k;    
+    pid_t pid = 0;
+    FILE  *f;
+   
+    /* 测试远程主机是否能够连通 */
+    i = Socket(proxyhost == NULL ? host : proxyhost, proxyport);
+    if (i < 0) { 
+        fprintf(stderr,"\nConnect to server failed. Aborting benchmark.\n");
+        return 1;
+    }
+    close(i);
+ 
+ 
+    /* 创建管道 */
+    if (pipe(mypipe)) {
+        perror("pipe failed.");
+        return 3;
+    }
+   
+    /* not needed, since we have alarm() in childrens */
+    /* wait 4 next system clock tick */
+    /*
+    cas=time(NULL);
+    while(time(NULL)==cas)
+          sched_yield();
+    */
+   
+    /* 生成子进程 */
+    for (i = 0; i < clients; i++) {
+        pid = fork();
+        if (pid <= (pid_t)0) {
+            /* child process or error*/
+            sleep(1); /* make childs faster */
+            /* 这个 break 很重要，它主要让子进程只能从父进程生成，
+            否则子进程会再生成子进程，子子孙孙很庞大的 */
+            break;
+        }
+    }
+   
+    if (pid < (pid_t)0) {
+        fprintf(stderr,"problems forking worker no. %d\n",i);
+        perror("fork failed.");
+        return 3;
+    }
+   
+    if (pid == (pid_t)0) {
+        /* I am a child */
+        /* 子进程执行请求：尽可能多的发送请求，直到超时返回为止 */
+        if(proxyhost == NULL) {
+            benchcore(host, proxyport, request);
+        } else {
+            benchcore(proxyhost, proxyport, request);
+        }
+        /* write results to pipe */
+        f = fdopen(mypipe[1], "w");
+        if (f == NULL) {
+            perror("open pipe for writing failed.");
+            return 3;
+        }
+        /* fprintf(stderr,"Child - %d %d\n",speed,failed); */
+        /* 将子进程执行任务的结果写入到管道中，以便父进程读取 */
+        fprintf(f, "%d %d %d\n", speed, failed, bytes);
+        fclose(f);
+        /* 子进程完成任务，返回退出 */
+        return 0;
+    } else {
+        /* 父进程读取管道，打印结果 */
+        printf("parent %d\n", getpid());
+        f = fdopen(mypipe[0], "r");
+        if (f == NULL) {
+            perror("open pipe for reading failed.");
+            return 3;
+        }
+        setvbuf(f, NULL, _IONBF, 0);
+        /* 虽然子进程不能污染父进程的这几个变量，但用前重置一下，在这里是个好习惯 */
+        speed  = 0;
+        failed = 0;
+        bytes  = 0;
+        /* 从管道中读取每个子进程的任务的执行情况，并计数 */
+        while(1) {
+            pid = fscanf(f, "%d %d %d", &i, &j, &k);
+            if (pid < 2) {
+                fprintf(stderr,"Some of our childrens died.\n");
+                break;
+            }
+            speed  += i;
+            failed += j;
+            bytes  += k;
+            /* fprintf(stderr,"*Knock* %d %d read=%d\n",speed,failed,pid); */
+            if (--clients == 0) {
+                break;
+            }
+        }
+        fclose(f);
+ 
+        /* 打印结果 */
+        printf("\nSpeed=%d pages/min, %d bytes/sec.\nRequests: %d susceed, %d failed.\n",
+              (int)((speed + failed) / (benchtime / 60.0f)),
+              (int)(bytes / (float)benchtime),
+              speed,
+              failed);
+    }
+    return i;
 }
 
 void benchcore(const char *host,const int port,const char *req)
