@@ -7,7 +7,13 @@
 #include <time.h>
 #include <signal.h>
 
-/* values */
+/* 
+ * 超时标记，当被设置为 1 时，所有子进程退出
+ * volatile：
+ *    - 让系统总是从内存读取数据，
+ *    - 告诉编译器不要做任何优化，
+ *    - 变量会在程序外被改变
+ */
 volatile int timerexpired=0;
 int speed=0;
 int failed=0;
