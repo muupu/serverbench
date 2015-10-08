@@ -13,7 +13,7 @@
 
 int Socket(const char *addr, int port)
 {
-    int sock;
+    int sockfd;
     unsigned long inaddr;
     struct sockaddr_in sockin;
     struct hostent *host;
@@ -33,11 +33,11 @@ int Socket(const char *addr, int port)
     }
     sockin.sin_port = htons(port);
     
-    sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock < 0)
-        return sock;
-    if (connect(sock, (struct sockaddr *)&sockin, sizeof(sockin)) < 0)
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0)
+        return sockfd;
+    if (connect(sockfd, (struct sockaddr *)&sockin, sizeof(sockin)) < 0)
         return -1;
-    return sock;
+    return sockfd;
 }
 
