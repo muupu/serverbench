@@ -16,7 +16,7 @@ int Socket(const char *addr, int port)
     int sock;
     unsigned long inaddr;
     struct sockaddr_in sockin;
-    struct hostent *hp;
+    struct hostent *host;
     
     memset(&sockin, 0, sizeof(sockin));
     sockin.sin_family = AF_INET;
@@ -26,10 +26,10 @@ int Socket(const char *addr, int port)
         memcpy(&sockin.sin_addr, &inaddr, sizeof(inaddr));
     else
     {
-        hp = gethostbyname(addr);
-        if (hp == NULL)
+        host = gethostbyname(addr);
+        if (host == NULL)
             return -1;
-        memcpy(&sockin.sin_addr, hp->h_addr, hp->h_length);
+        memcpy(&sockin.sin_addr, host->h_addr, host->h_length);
     }
     sockin.sin_port = htons(port);
     
