@@ -35,8 +35,8 @@ int http10 = 1; /* 0 - http/0.9, 1 - http/1.0, 2 - http/1.1 */
 /* 默认为GET方法 */
 int method = METHOD_GET;
 
-int clients      = 1; /* 默认启动一个客户端（子进程） */
-int force        = 0; /* 是否等待响应数据返回，0 －等待，1 － 不等待 */
+int clients      = 1; /* 并发数。默认启动一个客户端（子进程） */
+int force        = 0; /* 是否等待服务器响应数据返回，0 －等待，1 － 不等待 */
 int force_reload = 0; /* 是否发送 Pragma: no-cache */
 int proxyport    = 80; /* 代理端口 */
 char *proxyhost  = NULL; /* 代理服务器名称 */
@@ -396,7 +396,10 @@ static int bench(void) {
         pid = fork();
         if (pid <= (pid_t)0) {
             /* child process or error*/
-            sleep(1); /* make childs faster */
+            sleep(1); /* make childs faster 快速生成子进程*/
+            /*当fork后有2个进程执行。当fork出错或者fork后执行到子进程，就sleep(1)，
+            让出CPU，让父进程占用CPU继续执行for循环，fork生成子进程。*/
+
             /* 这个 break 很重要，它主要让子进程只能从父进程生成，
             否则子进程会再生成子进程，子子孙孙很庞大的 */
             break;
