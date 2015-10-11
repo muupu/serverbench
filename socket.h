@@ -1,3 +1,6 @@
+#ifndef __SOCKET_H__
+#define __SOCKET_H__
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <fcntl.h>
@@ -12,3 +15,5 @@
 #include <stdarg.h>
 
 int Socket(const char *addr, int port);
+
+#endif /* __SOCKET_H__ */
