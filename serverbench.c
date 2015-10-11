@@ -1,9 +1,8 @@
-#include "socket.c"
+#include "socket.h"
 #include <unistd.h>
 #include <sys/param.h>
 #include <rpc/types.h>
 #include <getopt.h>
-#include <strings.h>
 #include <time.h>
 #include <signal.h>
 
@@ -190,12 +189,6 @@ int main(int argc, char *argv[]) {
     if (benchtime == 0) {
         benchtime = 60;
     }
- 
-    /* Copyright */
-    fprintf(stderr,
-        "Webbench - Simple Web Benchmark "PROGRAM_VERSION"\n"
-        "Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.\n"
-    );
  
     build_request(argv[optind]); /* 最后一个非选项的参数，被视为URL */
  
