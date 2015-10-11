@@ -1,7 +1,7 @@
 CC=		gcc
 CFLAGS=	-Wall -ggdb -W -O
 
-serverbench: serverbench.o 
+serverbench: serverbench.o socket.o
 	$(CC) $(CFLAGS) -o serverbench serverbench.o socket.o
 
 serverbench.o:	serverbench.c  socket.h
