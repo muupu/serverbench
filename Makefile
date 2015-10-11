@@ -4,7 +4,7 @@ CFLAGS=	-Wall -ggdb -W -O
 serverbench: serverbench.o 
 	$(CC) $(CFLAGS) -o serverbench serverbench.o
 
-serverbench.o:	serverbench.c socket.c 
+serverbench.o:	serverbench.c socket.c socket.h
 
 clean:
 	-rm -f *.o serverbench
