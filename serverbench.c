@@ -1,4 +1,3 @@
-#include "socket.h"
 #include <unistd.h>
 #include <sys/param.h>
 #include <rpc/types.h>
@@ -6,6 +5,7 @@
 #include <time.h>
 #include <signal.h>
 
+#include "socket.h"
 /* 
  * 超时标记，当被设置为 1 时，所有子进程退出
  * volatile：
