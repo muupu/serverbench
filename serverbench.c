@@ -6,7 +6,7 @@
 #include <signal.h>
 
 #include "socket.h"
-#include "buildrequest.c"
+#include "buildrequest.h"
 /* 
  * 超时标记，当被设置为 1 时，所有子进程退出
  * volatile：

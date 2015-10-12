@@ -1,6 +1,7 @@
+#include "build_request.h"
 
-
-void build_request (const char *url) {
+void build_request (const char *url) 
+{
     char tmp[10];
     int i;
    
