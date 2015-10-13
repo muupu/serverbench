@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
 
 
 /* vraci system rc error kod */
-static int bench(void) {
+int bench(void) {
     int   i, j, k;    
     pid_t pid = 0;
     FILE  *f;

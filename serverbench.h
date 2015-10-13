@@ -77,8 +77,8 @@ static const struct option long_options[] = {
 
 /* prototypes */
 /* 子进程执行请求任务的函数 */
-static void benchcore(const char* host,const int port, const char *request);
+void benchcore(const char* host,const int port, const char *request);
 /* 执行压测的主要入口函数 */
-static int bench(void);
+int bench(void);
 
 #endif //__SERVERBENCH__H__
