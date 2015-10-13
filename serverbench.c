@@ -3,6 +3,38 @@
 #include "socket.h"
 #include "buildrequest.h"
 
+volatile int timerexpired=0;
+int speed  = 0;
+int failed = 0;
+int bytes  = 0;
+int http10 = 1; /* 0 - http/0.9, 1 - http/1.0, 2 - http/1.1 */
+int method = METHOD_GET;
+int clients      = 1; /* 并发数。默认启动一个客户端（子进程） */
+int force        = 0; /* 是否等待服务器响应数据返回，0 －等待，1 － 不等待 */
+int force_reload = 0; /* 是否发送 Pragma: no-cache */
+int proxyport    = 80; /* 代理端口 */
+char *proxyhost  = NULL; /* 代理服务器名称 */
+int benchtime = 30;
+int mypipe[2];
+char host[MAXHOSTNAMELEN]; /* 主机名（64字节） */
+char request[REQUEST_SIZE]; /* 请求字符串（HTTP头） */
+const struct option long_options[] = {
+    {"force",   no_argument,       &force,        1},
+    {"reload",  no_argument,       &force_reload, 1},
+    {"time",    required_argument, NULL,          't'},
+    {"help",    no_argument,       NULL,          '?'},
+    {"http09",  no_argument,       NULL,          '9'},
+    {"http10",  no_argument,       NULL,          '1'},
+    {"http11",  no_argument,       NULL,          '2'},
+    {"get",     no_argument,       &method,       METHOD_GET},
+    {"head",    no_argument,       &method,       METHOD_HEAD},
+    {"options", no_argument,       &method,       METHOD_OPTIONS},
+    {"trace",   no_argument,       &method,       METHOD_TRACE},
+    {"version", no_argument,       NULL,          'V'},
+    {"proxy",   required_argument, NULL,          'p'},
+    {"clients", required_argument, NULL,          'c'},
+    {NULL,      0,                 NULL,          0}
+};
 
 /* 将 timerexpired 设置为1，让所有子进程退出 */
 static void alarm_handler(int signal)
