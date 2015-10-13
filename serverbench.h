@@ -33,31 +33,31 @@ int http10 = 1; /* 0 - http/0.9, 1 - http/1.0, 2 - http/1.1 */
 #define PROGRAM_VERSION "1.5"
 
 /* 默认为GET方法 */
-int method = METHOD_GET;
+extern int method = METHOD_GET;
 
-int clients      = 1; /* 并发数。默认启动一个客户端（子进程） */
-int force        = 0; /* 是否等待服务器响应数据返回，0 －等待，1 － 不等待 */
-int force_reload = 0; /* 是否发送 Pragma: no-cache */
-int proxyport    = 80; /* 代理端口 */
-char *proxyhost  = NULL; /* 代理服务器名称 */
+extern int clients      = 1; /* 并发数。默认启动一个客户端（子进程） */
+extern int force        = 0; /* 是否等待服务器响应数据返回，0 －等待，1 － 不等待 */
+extern int force_reload = 0; /* 是否发送 Pragma: no-cache */
+extern int proxyport    = 80; /* 代理端口 */
+extern char *proxyhost  = NULL; /* 代理服务器名称 */
 
 /*
  * 执行时间，当子进程执行时间到过这个秒数之后，
  * 发送 SIGALRM 信号，将 timerexpired 设置为 1，
  * 让所有子进程退出 
  */
-int benchtime = 30;
+extern int benchtime = 30;
 
 /* 管道，子进程完成任务后，向写端写入数据，主进程从读端读取数据 */
-int mypipe[2];
+extern int mypipe[2];
 
-char host[MAXHOSTNAMELEN]; /* 主机名（64字节） */
+extern char host[MAXHOSTNAMELEN]; /* 主机名（64字节） */
 
 #define REQUEST_SIZE 2048
-char request[REQUEST_SIZE]; /* 请求字符串（HTTP头） */
+extern char request[REQUEST_SIZE]; /* 请求字符串（HTTP头） */
 
 /* 命令行的选项配置表，细节部分查看man文档：man getopt_long */
-static const struct option long_options[] = {
+extern static const struct option long_options[] = {
     {"force",   no_argument,       &force,        1},
     {"reload",  no_argument,       &force_reload, 1},
     {"time",    required_argument, NULL,          't'},
