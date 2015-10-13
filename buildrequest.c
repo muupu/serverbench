@@ -1,4 +1,5 @@
 #include "buildrequest.h"
+#include "serverbench.h"
 
 void build_request (const char *url) 
 {
