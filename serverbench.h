@@ -35,11 +35,11 @@ extern int http10 ; /* 0 - http/0.9, 1 - http/1.0, 2 - http/1.1 */
 /* 默认为GET方法 */
 extern int method;
 
-extern int clients      ; /* 并发数。默认启动一个客户端（子进程） */
-extern int force        ; /* 是否等待服务器响应数据返回，0 －等待，1 － 不等待 */
-extern int force_reload ; /* 是否发送 Pragma: no-cache */
-extern int proxyport    ; /* 代理端口 */
-extern char *proxyhost  ; /* 代理服务器名称 */
+extern int clients; /* 并发数。默认启动一个客户端（子进程） */
+extern int force; /* 是否等待服务器响应数据返回，0 －等待，1 － 不等待 */
+extern int force_reload; /* 是否发送 Pragma: no-cache */
+extern int proxyport; /* 代理端口 */
+extern char *proxyhost; /* 代理服务器名称 */
 
 /*
  * 执行时间，当子进程执行时间到过这个秒数之后，

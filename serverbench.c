@@ -44,7 +44,7 @@ static void alarm_handler(int signal)
 
 static void usage(void) {
     fprintf(stderr,
-        "webbench [option]... URL\n"
+        "serverbench [option]... URL\n"
         "  -f|--force               Don't wait for reply from server.\n"
         "  -r|--reload              Send reload request - Pragma: no-cache.\n"
         "  -t|--time <sec>          Run benchmark for <sec> seconds. Default 30.\n"
@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
     }
   
     if (optind == argc) {
-        fprintf(stderr, "webbench: Missing URL!\n");
+        fprintf(stderr, "serverbench: Missing URL!\n");
         usage();
         return 2;
     }
@@ -193,9 +193,6 @@ int main(int argc, char *argv[]) {
     return bench();
 }
 
-
-
-/* vraci system rc error kod */
 int bench(void) {
     int   i, j, k;    
     pid_t pid = 0;
