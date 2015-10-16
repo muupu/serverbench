@@ -1,4 +1,5 @@
 #include "bench.h"
+#include "serverbench.h"
 
 int bench(void) {
     int   i, j, k;    
