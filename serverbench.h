@@ -59,10 +59,5 @@ extern char request[REQUEST_SIZE]; /* 请求字符串（HTTP头） */
 /* 命令行的选项配置表，细节部分查看man文档：man getopt_long */
 extern const struct option long_options[];
 
-/* prototypes */
-/* 子进程执行请求任务的函数 */
-void benchcore(const char* host,const int port, const char *request);
-/* 执行压测的主要入口函数 */
-int bench(void);
 
 #endif //__SERVERBENCH__H__

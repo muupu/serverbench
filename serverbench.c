@@ -2,6 +2,7 @@
 #include "serverbench.h"
 #include "socket.h"
 #include "buildrequest.h"
+#include "bench.h"
 
 volatile int timerexpired=0;
 int speed  = 0;
