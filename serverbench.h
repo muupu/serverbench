@@ -30,7 +30,7 @@ extern int http10 ; /* 0 - http/0.9, 1 - http/1.0, 2 - http/1.1 */
 #define METHOD_HEAD 1
 #define METHOD_OPTIONS 2
 #define METHOD_TRACE 3
-#define PROGRAM_VERSION "1.5"
+#define PROGRAM_VERSION "0.1"
 
 /* 默认为GET方法 */
 extern int method;
